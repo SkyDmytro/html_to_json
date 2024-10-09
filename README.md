@@ -13,7 +13,7 @@ If we detect that AI was used but you claim otherwise, or if we find the code wa
 A <ins><b>.zip</b></ins> archive containing the following:
 - `html2json.js` - This file should contain your implementation of the html2json function.
 - `html_samples/` folder - Include files with a text that you used as samples to test your function.
-- `index.js` - The initial file we provided. You can leave it unchanged, but please include it in the archive.
+- `index.html` - The initial file we provided. You can leave it unchanged, but please include it in the archive.
 - `ai_help/` folder - If you used any resources for code generation:
 - Create a file named `chatgpt_chat.txt` with a link to the ChatGPT chat used.
 - For any other AI resources, attach relevant `.pdf`, `.png`, or `.mp4` files showing how you used them.
