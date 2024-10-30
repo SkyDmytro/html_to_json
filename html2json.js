@@ -5,54 +5,101 @@ function convertHtml2JsonAndSet() {
   jsonArea.textContent = JSON.stringify(jsonObj, null, 2);
 }
 
-/* 
-  Update this function to convert html into json object.
-  You can rewrite it completely, just be sure it accepts htmlText as string and outputs json object.
-*/
 function html2json(htmlText) {
+  if (typeof htmlText !== "string") {
+    return "Expects a string as argument";
+  }
+
+  const rootNode = getJsonFromHtml(htmlText);
+
   return {
-    "Conversion results": "should be instead of this json obj",
-    "Just to show that it is dynamic value (input length)" : htmlText.length,
+    "Conversion results": rootNode.children,
+    "Just to show that it is dynamic value (input length)": htmlText.length,
   };
 }
 
+function getJsonFromHtml(htmlText) {
+  const rootNode = { type: "root", children: [] };
+  const nodeStack = [rootNode];
+  let currentNode = rootNode;
+
+  const tagRegex = /<(\/?)([a-z0-9]+)((?:\s+[^>]*)?)\s*(\/?)>|([^<]+)/gi;
+  let match;
+
+  while ((match = tagRegex.exec(htmlText)) !== null) {
+    const [_, isClosing, tagName, attributes, isSelfClosing, textContent] =
+      match;
+
+    if (textContent) {
+      handleTextContent(textContent, currentNode);
+    } else if (isClosing) {
+      nodeStack.pop();
+      currentNode = nodeStack[nodeStack.length - 1];
+    } else {
+      const elementNode = createElementNode(tagName, attributes);
+
+      currentNode.children.push(elementNode);
+
+      if (!isSelfClosing) {
+        nodeStack.push(elementNode);
+        currentNode = elementNode;
+      }
+    }
+  }
+  return rootNode;
+}
+
+function handleTextContent(text, currentNode) {
+  if (currentNode === null) {
+    throw new Error("currentNode must be a non-null object");
+  }
+
+  const trimmedContent = (text || "").trim();
+  if (trimmedContent) {
+    currentNode.children.push({ type: "text", content: trimmedContent });
+  }
+}
+
+function createElementNode(tagName, attributes) {
+  return {
+    type: "element",
+    tagName: tagName.toLowerCase(),
+    attributes: parseAttributes(attributes),
+    children: [],
+  };
+}
+
+function parseAttributes(attributesString) {
+  const attributes = {};
+  if (!attributesString || typeof attributesString !== "string") {
+    return attributes;
+  }
+
+  const regex =
+    /([a-z0-9-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))|\b([a-z0-9-]+)\b/gi;
+  let match;
+
+  while ((match = regex.exec(attributesString)) !== null) {
+    const [
+      ,
+      name,
+      doubleQuoteValue,
+      singleQuoteValue,
+      unquotedValue,
+      booleanAttr,
+    ] = match;
+
+    if (name || booleanAttr) {
+      attributes[name || booleanAttr] =
+        doubleQuoteValue || singleQuoteValue || unquotedValue || "";
+    }
+  }
+
+  return attributes;
+}
+
 function showExample1() {
-  const htmlExample = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport">
-    <title>Sample HTML</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <h1>Welcome to My Website</h1>
-    </header>
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
-    <main>
-        <section id="home">
-            <h2>Home Section</h2>
-            <p>This is the home section of the webpage.</p>
-        </section>
-        <section id="about">
-            <h2>About Section</h2>
-            <p>This is the about section of the webpage.</p>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2024 My Website</p>
-    </footer>
-    <script src="script.js"></script>
-</body>
-</html>
-`;
+  console.log("showExample1");
   const jsonContent = {
     "Comment 1":
       "You have to think about how to take into account various html inputs so your json structure will cover them all and handle different cases.",
@@ -69,12 +116,7 @@ function showExample1() {
 }
 
 function showExample2() {
-  const htmlExample = `<div>
-<p>Hello world!</p>
-  <button>Click me!</button>
-  <textarea>Some very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string.</textarea>
-</div>
-`;
+  console.log("showExample2");
   const jsonContent = {
     "Comment 1":
       "You have to think about how to take into account various html inputs so your json structure will cover them all and handle different cases.",
@@ -82,7 +124,7 @@ function showExample2() {
       "When you make any choice in terms of selecting specific json structure for conversion - be ready to provide reasoning behind such choice.",
   };
 
-  document.getElementById("html").value = htmlExample;
+  document.getElementById("html").value = htmlExample2;
   document.getElementById("json").textContent = JSON.stringify(
     jsonContent,
     null,
