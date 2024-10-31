@@ -33,12 +33,17 @@ function html2json(htmlText) {
 }
 
 /**
- * Converts the given HTML string into a JSON object
- * @param {string} htmlText The HTML text to convert.
- * @returns {Object} The JSON object representing the HTML structure.
+ * Converts the given HTML text into a structured JSON representation.
+ * The function iterates over the given HTML text using a regular expression
+ * and builds a tree of JSON objects representing the HTML elements and their
+ * hierarchy.
+ *
+ * @param {string} htmlText - The HTML text to be converted into JSON.
+ * @returns {Object} The JSON object representing the root of the HTML tree.
  */
 function getJsonFromHtml(htmlText) {
   const rootNode = { type: "root", children: [] };
+
   const nodeStack = [rootNode];
   let currentNode = rootNode;
 
@@ -54,6 +59,12 @@ function getJsonFromHtml(htmlText) {
     } else if (isClosing) {
       nodeStack.pop();
       currentNode = nodeStack[nodeStack.length - 1];
+    } else if (
+      ["meta", "link", "img", "br", "hr", "input"].includes(
+        tagName.toLowerCase()
+      )
+    ) {
+      currentNode.children.push(createElementNode(tagName, attributes));
     } else {
       const elementNode = createElementNode(tagName, attributes);
 
