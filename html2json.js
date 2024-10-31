@@ -172,8 +172,8 @@ function basicValidation(html) {
 }
 
 function test() {
-  const results = htmlExamples.map(({ html, isValid }) => {
-    return isValid === isValidHtml(html);
+  const results = htmlExamples.map(({ htmlstring, isValid }) => {
+    return isValid === isValidHtml(htmlstring);
   });
   return results.some((it) => it === false) ? "TESTS FAILED" : "TESTS PASSED";
 }
