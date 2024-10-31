@@ -10,6 +10,9 @@ function html2json(htmlText) {
     return "Expects a string as argument";
   }
 
+  if (!isValidHtml(htmlText)) {
+    return "Invalid HTML";
+  }
   const rootNode = getJsonFromHtml(htmlText);
 
   return {
@@ -130,4 +133,52 @@ function showExample2() {
     null,
     2
   );
+}
+
+function isValidHtml(html) {
+  return validateTags(html) && basicValidation(html);
+}
+
+function validateTags(html) {
+  const stack = [];
+  const tagPattern = /<\/?([a-zA-Z]+)[^>]*>/g;
+  let match;
+
+  while ((match = tagPattern.exec(html)) !== null) {
+    const tag = match[1];
+
+    const isSelfClosing =
+      match[0].endsWith("/>") ||
+      ["meta", "link", "img", "br", "hr", "input"].includes(tag.toLowerCase());
+
+    if (!match[0].startsWith("</")) {
+      if (!isSelfClosing) {
+        stack.push(tag);
+      }
+    } else {
+      if (stack.length === 0 || stack.pop() !== tag) {
+        return false;
+      }
+    }
+  }
+
+  return stack.length === 0;
+}
+
+function basicValidation(html) {
+  const tagPattern = /<\/?[\w\s="/.':;#-\/\?]+>/gi;
+
+  return html.match(tagPattern).length > 0;
+}
+
+function test() {
+  const results = htmlExamples.map(({ html, isValid }) => {
+    return isValid === isValidHtml(html);
+  });
+  return results.some((it) => it === false) ? "TESTS FAILED" : "TESTS PASSED";
+}
+
+function showTestsOutput() {
+  const content = test();
+  document.getElementById("json").textContent = content;
 }
