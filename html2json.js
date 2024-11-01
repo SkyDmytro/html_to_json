@@ -55,7 +55,11 @@ function getJsonFromHtml(htmlText) {
       match;
 
     if (textContent) {
-      handleTextContent(textContent, currentNode);
+      if (textContent.includes("!DOCTYPE")) {
+        currentNode.children.push(createElementNode("DOCTYPE", attributes));
+      } else {
+        handleTextContent(textContent, currentNode);
+      }
     } else if (isClosing) {
       nodeStack.pop();
       currentNode = nodeStack[nodeStack.length - 1];
