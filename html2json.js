@@ -271,11 +271,14 @@ function basicValidation(html) {
  */
 function test() {
   const results = htmlExamples.map(({ htmlstring, isValid }) => {
-    return isValid === isValidHtml(htmlstring);
+    return {
+      isPassed: isValid === isValidHtml(htmlstring),
+      testCase: htmlstring,
+    };
   });
-  return results.some((it) => it === false)
-    ? "TESTS FAILED 😞 (Check console)"
-    : "TESTS PASSED 🎉";
+  return results.every(({ isPassed }) => isPassed)
+    ? "TESTS PASSED - HTML VALIDATED"
+    : "TESTS FAILED - HTML NOT VALIDATED";
 }
 
 /**
