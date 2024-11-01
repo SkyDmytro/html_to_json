@@ -56,7 +56,7 @@ function getJsonFromHtml(htmlText) {
 
     if (textContent) {
       if (textContent.includes("!DOCTYPE")) {
-        currentNode.children.push(createElementNode("DOCTYPE", attributes));
+        handleDoctype(textContent, currentNode);
       } else {
         handleTextContent(textContent, currentNode);
       }
@@ -99,6 +99,25 @@ function handleTextContent(text, currentNode) {
   if (trimmedContent) {
     currentNode.children.push({ type: "text", content: trimmedContent });
   }
+}
+
+/**
+ * Appends a DOCTYPE node to the children of the given currentNode if the text is not empty.
+ *
+ * @param {string} text - The text content to be added as a node.
+ * @param {Object} currentNode - The current node to which the text node will be appended.
+ * @throws {Error} If currentNode is null.
+ */
+function handleDoctype(text, currentNode) {
+  if (currentNode === null) {
+    throw new Error("currentNode must be a non-null object");
+  }
+  const attributes = parseAttributes(text.replace(/DOCTYPE\s*/, ""));
+
+  currentNode.children.push({
+    type: "DOCTYPE",
+    attributes: attributes,
+  });
 }
 
 /**
